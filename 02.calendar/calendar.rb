@@ -3,6 +3,10 @@ require "date"
 
 # 年月を取得する
 def year_month_switcher()
+  if ARGV.length == 0
+    return @target_year_and_month = Date.new(Date.today.year, Date.today.month)
+  end
+
   if ARGV.length == 1 || ARGV.length == 3 || ARGV.length >= 5
     puts "引数の指定が間違っています"
     return false
