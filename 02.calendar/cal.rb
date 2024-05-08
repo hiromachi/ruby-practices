@@ -1,55 +1,26 @@
 #!/usr/bin/env ruby
+require 'optparse'
 require "date"
 
 # 年月を取得する
 def year_month_switcher()
-  if ARGV.length == 0
-    return @target_year_and_month = Date.new(Date.today.year, Date.today.month)
+  options = {}
+  OptionParser.new do |opt|
+    opt.on('-y VALUE') { |v| @target_year = options[:year] = v }
+    opt.on('-m VALUE') { |v| @target_month = options[:month] = v }
+  end.parse!(ARGV)
+  options
+
+  if @target_year.to_i >= 1970 && @target_year.to_i <= 2100
+    @target_year_and_month = Date.new(@target_year.to_i, Date.today.month)
+  else
+    @target_year_and_month = Date.new(Date.today.year, Date.today.month)
   end
 
-  if ARGV.length == 1 || ARGV.length == 3 || ARGV.length >= 5
-    puts "引数の指定が間違っています"
-    return false
-  end
-
-  if ARGV.length == 2
-    if ARGV[0] == "-y"
-      if ARGV[1].to_i >= 1970 && ARGV[1].to_i <= 2100
-        @target_year_and_month = Date.new(ARGV[1].to_i, Date.today.month)
-      else
-        puts "年は1970〜2100までの数字で入力してください"
-      end
-    elsif ARGV[0] == "-m"
-      if ARGV[1].to_i >= 1 && ARGV[1].to_i <= 12
-        @target_year_and_month = Date.new(Date.today.year, ARGV[1].to_i)
-      else
-        puts "月は1〜12までの数字で入力してください"
-      end
-    end
-  elsif ARGV.length == 4
-    if ARGV[0] == "-y" && ARGV[2] == "-m"
-      if ARGV[1].to_i >= 1970 && ARGV[1].to_i <= 2100
-        if ARGV[3].to_i >=1 && ARGV[3].to_i <= 12
-          @target_year_and_month = Date.new(ARGV[1].to_i, ARGV[3].to_i)
-        else
-          puts "月は1〜12までの数字で入力してください"
-        end
-      else
-        puts "年は1970〜2100までの数字で入力してください"
-      end
-    elsif ARGV[0] == "-m" && ARGV[2] == "-y"
-      if ARGV[3].to_i >= 1970 && ARGV[3].to_i <= 2100
-        if ARGV[1].to_i >= 1 && ARGV[1].to_i <= 12
-          @target_year_and_month = Date.new(ARGV[3].to_i, ARGV[1].to_i)
-        else
-          puts "月は1〜12までの数字で入力してください"
-        end
-      else
-        puts "年は1970〜2100までの数字で入力してください"
-      end
-    end
-  elsif ARGV.length == 1 || ARGV.length == 3 || ARGV.length >= 5
-    return "引数の指定が間違っています"
+  if @target_month.to_i >= 1 && @target_month.to_i <= 12
+    @target_year_and_month = Date.new(@target_year_and_month.year, @target_month.to_i)
+  else
+    @target_year_and_month = Date.new(@target_year_and_month.year, Date.today.month)
   end
 end
 
