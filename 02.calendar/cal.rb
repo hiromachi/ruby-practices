@@ -11,16 +11,22 @@ def year_month_switcher()
   end.parse!(ARGV)
   options
 
-  if @target_year.to_i >= 1970 && @target_year.to_i <= 2100
+  if @target_year.nil?
+    @target_year_and_month = Date.new(Date.today.year, Date.today.month)
+  elsif @target_year.to_i >= 1970 && @target_year.to_i <= 2100
     @target_year_and_month = Date.new(@target_year.to_i, Date.today.month)
   else
-    @target_year_and_month = Date.new(Date.today.year, Date.today.month)
+    puts "年は1970〜2100までの数字で入力してください"
+    return false
   end
 
-  if @target_month.to_i >= 1 && @target_month.to_i <= 12
+  if @target_month.nil?
+    @target_year_and_month = Date.new(@target_year_and_month.year, Date.today.month)
+  elsif @target_month.to_i >= 1 && @target_month.to_i <= 12
     @target_year_and_month = Date.new(@target_year_and_month.year, @target_month.to_i)
   else
-    @target_year_and_month = Date.new(@target_year_and_month.year, Date.today.month)
+    puts "月は1〜12までの数字で入力してください"
+    return false
   end
 end
 
