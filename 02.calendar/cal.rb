@@ -9,7 +9,6 @@ def year_month_switcher()
     opt.on('-y VALUE') { |v| @target_year = options[:year] = v }
     opt.on('-m VALUE') { |v| @target_month = options[:month] = v }
   end.parse!(ARGV)
-  options
 
   if @target_year.nil?
     @target_year_and_month = Date.new(Date.today.year, Date.today.month)
@@ -74,8 +73,4 @@ def calendar()
 end
 
 # 入力された引数をチェックして、trueならカレンダーを表示する
-if year_month_switcher
-  calendar
-else
-  return
-end
+calendar if year_month_switcher
