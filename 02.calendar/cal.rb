@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'optparse'
-require "date"
+require 'date'
 
 # 年月を取得する
-def year_month_switcher()
+def year_month_switcher
   options = {}
   OptionParser.new do |opt|
     opt.on('-y VALUE') { |v| @target_year = options[:year] = v }
@@ -11,28 +13,28 @@ def year_month_switcher()
   end.parse!(ARGV)
 
   if @target_year.nil?
-    @target_year_and_month = Date.new(Date.today.year, Date.today.month)
+    @target_year_and_month = Date.new(Time.zone.today.year, Time.zone.today.month)
   elsif @target_year.to_i >= 1970 && @target_year.to_i <= 2100
-    @target_year_and_month = Date.new(@target_year.to_i, Date.today.month)
+    @target_year_and_month = Date.new(@target_year.to_i, Time.zone.today.month)
   else
-    puts "年は1970〜2100までの数字で入力してください"
+    puts '年は1970〜2100までの数字で入力してください'
     return false
   end
 
   if @target_month.nil?
-    @target_year_and_month = Date.new(@target_year_and_month.year, Date.today.month)
+    @target_year_and_month = Date.new(@target_year_and_month.year, Time.zone.today.month)
   elsif @target_month.to_i >= 1 && @target_month.to_i <= 12
     @target_year_and_month = Date.new(@target_year_and_month.year, @target_month.to_i)
   else
-    puts "月は1〜12までの数字で入力してください"
-    return false
+    puts '月は1〜12までの数字で入力してください'
+    false
   end
 end
 
-def calendar()
+def calendar
   # カレンダーのヘッダーを表示する
-  puts @target_year_and_month.strftime("%B %Y").center(20)
-  puts "Su Mo Tu We Th Fr Sa"
+  puts @target_year_and_month.strftime('%B %Y').center(20)
+  puts 'Su Mo Tu We Th Fr Sa'
 
   # 月の日数を取得する
   end_date = Date.new(@target_year_and_month.year, @target_year_and_month.month, -1)
@@ -44,9 +46,7 @@ def calendar()
 
   while count <= days
     # 1日の曜日まで空白を表示する
-    if count == 1
-      print "   " * (daynumber)
-    end
+    print '   ' * daynumber if count == 1
 
     # 日付を表示する
     # 1〜9日目の場合は数字の前後に空白を追加する
