@@ -4,14 +4,14 @@ def convert_shots(result)
   scores = result.split(',')
   shots = []
   scores.each do |s|
-    if s == 'X'
-      shots << 10
-    else
-      shots << s.to_i
-    end
+    shots << if s == 'X'
+               10
+             else
+               s.to_i
+             end
   end
 
-  return shots
+  shots
 end
 
 # フレーム毎に分割する
@@ -30,11 +30,9 @@ def separate_frames(shots)
   end
 
   # 最後のフレームの追加投球を含む場合、全ての投球をフレームに追加
-  if frames.size == 10 && shot_count < shots.size
-    frames[-1] += shots[shot_count..-1]
-  end
+  frames[-1] += shots[shot_count..-1] if frames.size == 10 && shot_count < shots.size
 
-  return frames
+  frames
 end
 
 def calc_point(frames)
@@ -63,9 +61,7 @@ def calc_point(frames)
       elsif frame.sum == 10
         point += 10
         # 次のフレームの1投目を加算
-        if frames[index + 1] != nil
-          point += frames[index + 1][0]
-        end
+        point += frames[index + 1][0] if frames[index + 1] != nil
       # ストライクでもスペアでもない場合
       else
         point += frame.sum
@@ -76,7 +72,7 @@ def calc_point(frames)
     end
   end
 
-  return point
+  point
 end
 
 shots = convert_shots(ARGV[0])
