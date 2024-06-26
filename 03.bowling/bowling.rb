@@ -4,11 +4,7 @@ def convert_shots(result)
   scores = result.split(',')
   shots = []
   scores.each do |s|
-    shots << if s == 'X'
-               10
-             else
-               s.to_i
-             end
+    shots.push s == 'X' ? 10 : s.to_i
   end
 
   shots
@@ -24,7 +20,8 @@ def separate_frames(shots)
       frames << [shots[shot_count]]
       shot_count += 1
     else
-      frames << [shots[shot_count], shots[shot_count + 1]]
+      # frames << [shots[shot_count], shots[shot_count + 1]]
+      frames << shots[shot_count..shot_count + 1]
       shot_count += 2
     end
   end
