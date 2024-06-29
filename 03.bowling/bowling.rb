@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+require 'pry'
+
 # 全投球を受け取る
 def convert_shots(result)
   # 1投毎に分割し、Xは10に変換する
@@ -12,61 +15,79 @@ end
 
 # フレーム毎に分割する
 def separate_frames(shots)
-  # ストライクなら2投目は0で良いので、1投目だけをフレームに追加する
+  # ストライクなら2投目は0で良いので、その場合は[10, 0]とする
   frames = []
   shot_count = 0
-  while frames.size < 10 && shot_count < shots.size
+  while frames.size < 9
     if shots[shot_count] == 10
-      frames << [shots[shot_count]]
+      frames.push [10, 0]
       shot_count += 1
     else
-      # frames << [shots[shot_count], shots[shot_count + 1]]
-      frames << shots[shot_count..shot_count + 1]
+      frames.push shots[shot_count..shot_count + 1]
       shot_count += 2
     end
   end
 
-  # 最後のフレームの追加投球を含む場合、全ての投球をフレームに追加
-  frames[-1] += shots[shot_count..-1] if frames.size == 10 && shot_count < shots.size
+  # 10フレーム目
+  frames.push shots[shot_count..shot_count + 2]
 
+  p frames
   frames
 end
 
+# スペアのフレームの得点は次の1投の点を加算する。
+#   例: 6 4 5 = 15
+#   例: 6 4 10 = 20
+# ストライクのフレームの得点は次の2投の点を加算する。
+#   例: 10 5 2 = 17
+#   例: 10 10 10 = 30
+# 10フレーム目は1投目がストライクもしくは2投目がスペアだった場合、3投目が投げられる。
+
 def calc_point(frames)
   point = 0
+
   frames.each_with_index do |frame, index|
-    # 1〜9フレーム目以外の計算
+    # 1〜8フレーム目の計算
     if index < 9
-      # ストライクの場合
-      if frame[0] == 10
-        point += 10
-        # 次のフレームが存在する場合
-        if frames[index + 1] != nil
-          # 次のフレームの1投目を加算
-          point += frames[index + 1][0]
-          # 次のフレームがストライクでない場合
-          if frames[index + 1][1] != nil
-            # 次のフレームの2投目を加算
-            point += frames[index + 1][1]
-          # 次のフレームがストライクの場合
-          elsif frames[index + 2] != nil
-            # 次のフレームの1投目を加算
-            point += frames[index + 2][0]
-          end
-        end
-      # スペアの場合
-      elsif frame.sum == 10
-        point += 10
-        # 次のフレームの1投目を加算
-        point += frames[index + 1][0] if frames[index + 1] != nil
-      # ストライクでもスペアでもない場合
-      else
-        point += frame.sum
+      # ストライクなら次の2投の点を加算する
+      if frame[index] == [10, 0]
+        # 次もストライクならそのまま20点加算
+        point += if frames[index + 1] == [10, 0]
+                   10 + frames[index + 1].sum
+                 else
+                   10 + frames[index + 1][0]
+                 end
       end
-    # 10フレーム目の計算
-    else
-      point += frame.sum
+
+      # スペアなら次の1投の点を加算する
+      if frames[index].sum == 10 && frames[index][0] != 10
+        # 次がストライクなら10点加算
+        binding.pry
+        point += 10 + frames[index + 1][0]
+        puts "aaaaaa #{point}"
+      end
+
+      # それ以外はそのフレームの点を加算する
+      point += frames[index].sum
+
+      puts "frames: #{frames[index]}"
+      puts "point: #{point}"
     end
+
+    # 10フレーム目の計算
+    next unless index == 9
+
+    # 全投球ストライク
+    point += if frames[index] == [10, 10, 10]
+               30
+             # 1投目がストライク or 1,2投目がスペア
+             elsif frames[index][0] + frames[index][1] == 10 || frames[index][0] != 10
+               10 + frames[index][2]
+             else
+               frames[index].sum
+             end
+      puts "frames: #{frames[index]}"
+      puts "point: #{point}"
   end
 
   point
