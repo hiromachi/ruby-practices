@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'pry'
 
 # 全投球を受け取る
 def convert_shots(result)
@@ -35,14 +34,6 @@ def separate_frames(shots)
   frames
 end
 
-# スペアのフレームの得点は次の1投の点を加算する。
-#   例: 6 4 5 = 15
-#   例: 6 4 10 = 20
-# ストライクのフレームの得点は次の2投の点を加算する。
-#   例: 10 5 2 = 17
-#   例: 10 10 10 = 30
-# 10フレーム目は1投目がストライクもしくは2投目がスペアだった場合、3投目が投げられる。
-
 def calc_point(frames)
   point = 0
 
@@ -50,44 +41,31 @@ def calc_point(frames)
     # 1〜8フレーム目の計算
     if index < 9
       # ストライクなら次の2投の点を加算する
-      if frame[index] == [10, 0]
-        # 次もストライクならそのまま20点加算
-        point += if frames[index + 1] == [10, 0]
-                   10 + frames[index + 1].sum
-                 else
-                   10 + frames[index + 1][0]
-                 end
-      end
-
+      if frame == [10, 0]
+        # 次もストライクならフレームではなく投球数分で加算する
+        if frames[index + 1] == [10, 0]
+          point += 10 + frames[index + 1][0] + frames[index + 2][0]
+        else
+          point += 10 + frames[index + 1][0] + frames[index + 1][1]
+        end
       # スペアなら次の1投の点を加算する
-      if frames[index].sum == 10 && frames[index][0] != 10
+      elsif frame.sum == 10 && frame[0] != 10
         # 次がストライクなら10点加算
-        binding.pry
         point += 10 + frames[index + 1][0]
-        puts "aaaaaa #{point}"
+      else
+        # それ以外はそのフレームの点を加算する
+        point += frame.sum
       end
-
-      # それ以外はそのフレームの点を加算する
-      point += frames[index].sum
-
-      puts "frames: #{frames[index]}"
+      puts "フレーム数: #{index + 1}"
+      puts "1投目のスコア: #{frame[0]}"
+      puts "2投目のスコア: #{frame[1]}"
+      puts "frame: #{frame}"
       puts "point: #{point}"
     end
 
     # 10フレーム目の計算
     next unless index == 9
-
-    # 全投球ストライク
-    point += if frames[index] == [10, 10, 10]
-               30
-             # 1投目がストライク or 1,2投目がスペア
-             elsif frames[index][0] + frames[index][1] == 10 || frames[index][0] != 10
-               10 + frames[index][2]
-             else
-               frames[index].sum
-             end
-      puts "frames: #{frames[index]}"
-      puts "point: #{point}"
+    point += frame.sum
   end
 
   point
