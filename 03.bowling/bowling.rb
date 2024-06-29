@@ -30,7 +30,6 @@ def separate_frames(shots)
   # 10フレーム目
   frames.push shots[shot_count..shot_count + 2]
 
-  p frames
   frames
 end
 
@@ -41,30 +40,26 @@ def calc_point(frames)
     # 1〜8フレーム目の計算
     if index < 9
       # ストライクなら次の2投の点を加算する
-      if frame == [10, 0]
-        # 次もストライクならフレームではなく投球数分で加算する
-        if frames[index + 1] == [10, 0]
-          point += 10 + frames[index + 1][0] + frames[index + 2][0]
-        else
-          point += 10 + frames[index + 1][0] + frames[index + 1][1]
-        end
-      # スペアなら次の1投の点を加算する
-      elsif frame.sum == 10 && frame[0] != 10
-        # 次がストライクなら10点加算
-        point += 10 + frames[index + 1][0]
-      else
-        # それ以外はそのフレームの点を加算する
-        point += frame.sum
-      end
-      puts "フレーム数: #{index + 1}"
-      puts "1投目のスコア: #{frame[0]}"
-      puts "2投目のスコア: #{frame[1]}"
-      puts "frame: #{frame}"
-      puts "point: #{point}"
+      point += if frame == [10, 0]
+                 # 次もストライクならフレームではなく投球数分で加算する
+                 if frames[index + 1] == [10, 0]
+                   10 + frames[index + 1][0] + frames[index + 2][0]
+                 else
+                   10 + frames[index + 1][0] + frames[index + 1][1]
+                 end
+               # スペアなら次の1投の点を加算する
+               elsif frame.sum == 10 && frame[0] != 10
+                 # 次がストライクなら10点加算
+                 10 + frames[index + 1][0]
+               else
+                 # それ以外はそのフレームの点を加算する
+                 frame.sum
+               end
     end
 
     # 10フレーム目の計算
     next unless index == 9
+
     point += frame.sum
   end
 
